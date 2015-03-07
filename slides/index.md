@@ -1,5 +1,5 @@
 ﻿- title : F# in Azure
-- description : How to use F# to create azure website and use Azure .NET SDK from F#
+- description : How to use F# to create azure websites and use Azure .NET SDK from F#
 - author : Olav Nybø
 - theme : sky 
 - transition : default
@@ -15,6 +15,7 @@
 
 ***
 
+### Olav Nybø
 - Twitter; @onybo
 - Mail: olav.nybo@novanet.no
 - Dagtid: C# og  TypeScript hos If
@@ -23,29 +24,6 @@
 ***
 
 ### MVC / Web API
-
-***
-    [lang=cs]
-    [RoutePrefix("persons")]
-    public class PersonsController : Controller
-    {
-      // eg.: /persons
-      [Route]
-      public ActionResult Index()
-      {
-        var persons = context.Persons
-                      .Where(person => person.IsAlive())
-                      .Include(p => p.Policies.Select(policy => policy.Exposures))
-                      .ToList();
-        return View(persons);
-      }
-      
-      // eg.: /persons/5
-      [Route("{personId}")]
-      public ActionResult Show(int personId) { ... }
-    }
-
----
 
     [lang=cs]
     [RoutePrefix("persons")]
@@ -62,7 +40,7 @@
       [Route]
       public ActionResult Index()
       {
-        var persons = _personsRepository.GetLivingPersonsWithPoliciesAndExposures();
+        var persons = _personsRepository.GetPersons();
         return View(persons);
       }
       
@@ -72,6 +50,10 @@
     }
 
 ---
+
+### SOLID
+#### Interface Segregation Principle
+#### Single Responsibility
 
     [lang=cs]
     public interface IPersonRepository
@@ -143,6 +125,7 @@
 
 ***
 
+## DEMO
 ### [Azure portal](https://portal.azure.com)
  
  - Create database
@@ -153,7 +136,7 @@
 
 ***
 
-### [Azure SDKs: github.com/Azure](https://github.com/Azure)
+### Azure SDKs
 ![.NET](images/Microsoft_.NET_Framework_v4.5_logo.png)
 ![python](images/python-logo-generic.svg)
 ![JS Client](images/Unofficial_JavaScript_logo_2.svg.png)
@@ -181,23 +164,26 @@
                 return Enumerable.Empty<Document>();
             }
             
-            var database = client.CreateDatabaseAsync(
-                new Database
-                {
-                    Id = "OlavsDemoDB"
-                }).Result.Resource;
+            var database = client.CreateDatabaseQuery()
+                                 .Where(db => db.Id == "OlavsDemoDB")
+                                 .AsEnumerable()
+                                 .FirstOrDefault();
 
             if (database == null)
             {
                return Enumerable.Empty<Document>();
             }
-            
-            var documentCollection = client.CreateDocumentCollectionAsync(database.CollectionsLink,
-                new DocumentCollection
-                {
-                    Id = "Persons"
-                }).Result.Resource;
-            return client.CreateDocumentQuery<Document>(documentCollection.DocumentsLink).ToList();
+
+            var collection = client
+                             .CreateDocumentCollectionQuery(database.SelfLink)
+                             .Where(c => c.Id == "Persons")
+                             .ToArray()
+                             .FirstOrDefault();
+
+            return client
+                   .CreateDocumentQuery<Document>
+                             (documentCollection.DocumentsLink)
+                   .ToList();
         }
     }
 
@@ -209,14 +195,34 @@ Railway oriented programming
 
 ---
 
-![null reference](images/chessie_logo.png)
+### Chessie
 
     type Result<'TSuccess, 'TMessage> = 
     | Ok of 'TSuccess * 'TMessage list
     | Fail of 'TMessage list
 
+---
 
+### Pipelines
+
+    getDocumentClient uri password
+    |> getDatabase "OlavsDemoDb"
+    |> getCollection "Persons"
+    |> getDocuments
+
+---
+
+### Railways
+
+    use client = new DocumentClient(uri, password)
+    client
+    |> getDatabase "OlavsDemoDb"
+    >>= getOrCreateCollectionSync client
+    >>= getDocuments client
+    >>= either showDocuments showErrorMessages
+    |> ignore
 ***
+
 
 # DEMO
 
@@ -224,49 +230,13 @@ Railway oriented programming
 
 # ?
 
-***
 
-### C# assemblies fra F#
+<div style="font-size: 20px">
 
-    //module Logger
+- Azure portal: [https://portal.azure.com](https://portal.azure.com)
+- Azure DocumentDb: [http://azure.microsoft.com/en-us/documentation/services/documentdb/](http://azure.microsoft.com/en-us/documentation/services/documentdb/)
+- Info om Railway Oriented Programming: [http://fsharpforfunandprofit.com/posts/recipe-part2/](http://fsharpforfunandprofit.com/posts/recipe-part2/) og [video her](http://vimeo.com/97344498)
+- Chessie - ett F# bibliotek for ROP: [http://fsprojects.github.io/Chessie/reference/chessie-rop.html](http://fsprojects.github.io/Chessie/reference/chessie-rop.html)
+- Gratis online kurs i F#: [http://www.tryfsharp.org/Learn](http://www.tryfsharp.org/Learn)
 
-    open DocumentDbSample.Core
-    open System.Diagnostics
-
-    let trace message = 
-      Trace.Write message  
-
-    let trace2 message category =
-      Trace.Write(message, category)
-
-    let traceRecord (documentRecord:DocumentRecord) = 
-      Trace.Write (sprintf "documentRecord is %A" documentRecord)
-
----
-
-    [lang=cs]
-    using DocumentDbSample;
-    using System.Diagnostics;
-
-    public static class Logger
-    {
-      public static void trace(string message)
-      {
-        Trace.Write(message);
-      }
-
-      public static void trace2(string message, string category)
-      {
-        Trace.Write(message, category);
-      }
-
-      public static void traceRecord(Core.DocumentRecord documentRecord)
-      {
-        FSharpFunc<Core.DocumentRecord, string> fSharpFunc =
-             ExtraTopLevelOperators.PrintFormatToString<FSharpFunc<Core.DocumentRecord, string>>(
-               new PrintfFormat<FSharpFunc<Core.DocumentRecord, string>, Unit, string, string, Core.DocumentRecord>(
-                 "documentRecord is %A"));
-        Trace.Write(fSharpFunc.Invoke(documentRecord));
-      }
-    }
-
+</div>
