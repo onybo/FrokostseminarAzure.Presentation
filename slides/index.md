@@ -58,7 +58,7 @@
     [lang=cs]
     public interface IPersonRepository
     {
-      IEnumerable<Person> GetLivingPersonsWithPoliciesAndExposures();
+      IEnumerable<Person> GetPersons();
       void SaveChanges();
       void UpdatePerson(Person person);
       void DeletePerson(Person person);
@@ -99,8 +99,12 @@
 
 
 ***
- 
-![null reference](images/null_reference.png) 
+
+![null reference](images/null_reference.png)
+
+---
+
+![null reference](images/yoda.gif) 
 
 ***
 
@@ -114,7 +118,7 @@
 ### Azure DocumentDb
 
 - NoSql Database
-- Støtter SQL som spørrespråk
+- SQL
 - JSON dokumenter
 
 ***
@@ -195,6 +199,15 @@ Railway oriented programming
 
 ---
 
+### Pipelines
+
+    getDocumentClient uri password
+    |> getDatabase "OlavsDemoDb"
+    |> getCollection "Persons"
+    |> getDocuments
+
+---
+
 ### Chessie
 
     type Result<'TSuccess, 'TMessage> = 
@@ -203,12 +216,11 @@ Railway oriented programming
 
 ---
 
-### Pipelines
+![railway chessie](images/Railway_chessie.png)
 
-    getDocumentClient uri password
-    |> getDatabase "OlavsDemoDb"
-    |> getCollection "Persons"
-    |> getDocuments
+---
+
+![railway chessie bind](images/Railway_chessie_bind.png)
 
 ---
 
@@ -219,7 +231,7 @@ Railway oriented programming
     |> getDatabase "OlavsDemoDb"
     >>= getOrCreateCollectionSync client
     >>= getDocuments client
-    >>= either showDocuments showErrorMessages
+    |> either showDocuments showErrorMessages
     |> ignore
 ***
 
