@@ -4,14 +4,24 @@
 - theme : sky 
 - transition : default
 
-***
-### Azure Web Site
-- MVC og/eller Angular
-- Azure DocumentDb
+*** 
+
+## Azure Websites
+![love](images/heart.svg)
+#F# 
 
 ***
 
-# F#
+![azure websites](images/azure_websites.png)
+
+***
+
+- Hvorfor F#
+- Basic F# Azure Web Site
+- Azure DocumentDB
+- Railway Oriented Programming
+- Azure Web Site med DocumentDB i F# og Chessie
+- DocumentDB TypeProvider
 
 ***
 
