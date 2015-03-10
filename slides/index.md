@@ -78,16 +78,16 @@
 ---
 
     [lang=cs]
-    public LivingPersonsWithPoliciesAndExposuresQuery
+    public PersonsWithQuery
     {
-      public LivingPersonsWithPoliciesAndExposuresQuery(...)
+      public PersonsQuery(DbContext context)
       {
         ...
       }
 
-      public IEnumerable<Person> GetLivingPersonsWithPoliciesAndExposures
+      public IEnumerable<Person> GetPersons()
       {
-        ...
+         from dbContext where bla bla bla....
       }
     }
 
@@ -136,7 +136,6 @@
 ### Azure DocumentDb struktur
 ![DocumentDb](images/DocumentDb.png)
 
-
 ***
 
 ## DEMO
@@ -146,7 +145,6 @@
  - URI and Keys
  - Document Explorer
  - Query Explorer
-
 
 ***
 
@@ -172,12 +170,6 @@
         public IEnumerable<Document> GetDocuments()
         {
             var client = new DocumentClient(new Uri(EndpointUrl), AuthorizationKey);
-            if (client == null)
-            {
-                //log problem
-                return Enumerable.Empty<Document>();
-            }
-            
             var database = client.CreateDatabaseQuery()
                                  .Where(db => db.Id == "OlavsDemoDB")
                                  .AsEnumerable()
@@ -203,18 +195,18 @@
 
 ***
 
-Railway oriented programming
-
-![null reference](images/railway.png)
-
----
-
-### Pipelines
+### F# Pipelines
 
     getDocumentClient uri password
     |> getDatabase "OlavsDemoDb"
     |> getCollection "Persons"
     |> getDocuments
+
+---
+
+Railway oriented programming
+
+![null reference](images/railway.png)
 
 ---
 
